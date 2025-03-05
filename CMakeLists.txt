@@ -9,6 +9,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC -Wno-deprecated-declara
 
 option(WITH_ZAHAF "Compiling also for Zahaf2019 test (if you have the rights to access the repo)" OFF)
 
+link_directories(/opt/local/lib)
+link_directories(/opt/local/libexec/tbb/lib)
+
 #-------------------------------------------------------------------------------
 # External Libraries
 #-------------------------------------------------------------------------------
@@ -16,6 +19,8 @@ find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
 find_package(yaml-cpp REQUIRED)
+include_directories(/opt/local/include)
+include_directories(/opt/local/libexec/tbb/include)
 
 find_package(Python3 COMPONENTS Interpreter Development)
 message("Python_FOUND:${Python3_FOUND}")
@@ -23,6 +28,7 @@ message("Python_FOUND:${Python3_FOUND}")
 # message("Python_Development_FOUND:${Python3_Development_FOUND}")
 message("Python_LIBRARIES:${Python3_LIBRARIES}")
 message("Python_INCLUDE_DIRS:${Python3_INCLUDE_DIRS}")
+include_directories(/opt/local/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/numpy/core/include)
 
 #-------------------------------------------------------------------------------
 # Submodules
