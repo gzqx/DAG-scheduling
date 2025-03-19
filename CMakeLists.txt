@@ -24,6 +24,8 @@ message("Python_FOUND:${Python3_FOUND}")
 message("Python_LIBRARIES:${Python3_LIBRARIES}")
 message("Python_INCLUDE_DIRS:${Python3_INCLUDE_DIRS}")
 
+include_directories("/usr/include/tbb")
+
 #-------------------------------------------------------------------------------
 # Submodules
 #-------------------------------------------------------------------------------

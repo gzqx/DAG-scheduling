@@ -1,0 +1,40 @@
+Bootstrap: docker
+From: fedora:latest
+
+%labels
+    Author: gzqx
+    Version: 1.0
+
+%post
+    # Update and install development tools and required dependencies
+    dnf -y update && dnf clean all
+    dnf -y install \
+        cmake \
+        gcc-c++ \
+        graphviz \
+        yaml-cpp-devel \
+        python3-matplotlib \
+        tbb-devel \
+        eigen3-devel \
+        python3-devel
+
+    # If your source code is already inside the container, build it.
+    # Otherwise, ensure the source is available at /src (see below).
+    mkdir -p /build && cd /build
+    cmake /src
+    make
+
+%files
+    # Copy your project source into the container.
+    # Replace /absolute/path/to/your/source with the actual path.
+    . /src
+
+%environment
+    # Optionally add build output to the PATH
+    export PATH=/build:$PATH
+
+%runscript
+    # Default execution (for example, running the demo executable)
+    #exec /build/demo "$@"
+    exec /build/demo 1
+
