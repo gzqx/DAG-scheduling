@@ -7,6 +7,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC -Wno-deprecated-declara
 # Options
 #-------------------------------------------------------------------------------
 
+set(TBB_INCLUDE_DIR "/usr/include/tbb")
+set(TBB_LIBRARY "/usr/lib64/libtbb.so")
+include_directories(${TBB_INCLUDE_DIR})
+
+find_package(TBB REQUIRED)
+
+message("TBB_find:${TBB_INCLUDE_DIR}")
+
 option(WITH_ZAHAF "Compiling also for Zahaf2019 test (if you have the rights to access the repo)" OFF)
 
 #-------------------------------------------------------------------------------
