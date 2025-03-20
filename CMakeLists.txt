@@ -11,6 +11,9 @@ set(TBB_INCLUDE_DIR "/usr/include/tbb")
 set(TBB_LIBRARY "/usr/lib64/libtbb.so")
 include_directories(${TBB_INCLUDE_DIR})
 
+add_compile_definitions(SIGSTKSZ=8192)
+
+
 find_package(TBB REQUIRED)
 
 message("TBB_find:${TBB_INCLUDE_DIR}")
