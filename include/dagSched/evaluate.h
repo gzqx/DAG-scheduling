@@ -7,6 +7,10 @@
 #include "dagSched/tests.h"
 #include "dagSched/plot_utils.h"
 
+#include <exception>
+#include <filesystem>
+#include <string>
+
 namespace dagSched{
 
 void evaluate(const std::string& genparams_path, const std::string& output_fig_path, const bool show_plots){
@@ -36,6 +40,25 @@ void evaluate(const std::string& genparams_path, const std::string& output_fig_p
     int min_V_all  = 100;
     int max_V_all  = 0;
 
+    std::string base_dot_output_dir;
+    if(gp.saveGeneratedDOTs){
+        std::string parent_path_str;
+        try {
+            std::filesystem::path fig_path(output_fig_path);
+            parent_path_str = fig_path.parent_path().string();
+            if (parent_path_str.empty()) {
+                parent_path_str=".";
+            }
+            base_dot_output_dir=parent_path_str+"/generated_dags";
+            std::filesystem::create_directories(base_dot_output_dir);
+            std::cout << "creating directory" << std::endl;
+        }catch(const std::exception& e) {
+            std::cerr << "Error creating base DOT output directory " << base_dot_output_dir <<": " <<e.what() <<std::endl;
+            gp.saveGeneratedDOTs=false;
+
+        }
+    }
+
     for(int i=0; i<gp.nTasksets; ++i){
         if(gp.gType == GenerationType_t::VARYING_U && i % gp.tasksetPerVarFactor == 0){
             U_curr += gp.stepU;
@@ -55,6 +78,34 @@ void evaluate(const std::string& genparams_path, const std::string& output_fig_p
         
         Taskset task_set;
         task_set.generate_taskset_Melani(n_tasks, U_curr, m, gp);
+
+        if (gp.saveGeneratedDOTs) {
+            std::string taskset_dot_dir=base_dot_output_dir+"/taskset_"+std::to_string(i);
+            try {
+                std::filesystem::create_directories(taskset_dot_dir);
+            }catch(const std::exception& e) {
+                std::cerr << "Warning: Could not create directory " << taskset_dot_dir << " for taskset " << i << ". Skipping DOT save for this taskset. Error: " << e.what() << std::endl;
+            }
+            if (std::filesystem::is_directory(taskset_dot_dir)) { // Check if directory exists before saving
+                for (int task_idx = 0; task_idx < task_set.tasks.size(); ++task_idx) {
+                    // Construct filename using existing variables
+                    std::string dot_filename = taskset_dot_dir + "/task_" + std::to_string(task_idx) + ".dot";
+                    try {
+                         if (task_set.tasks[task_idx].getVertices().empty()) {
+                             std::cerr << "Warning: Task " << task_idx << " in taskset " << i << " is empty. Skipping DOT save." << std::endl;
+                             continue;
+                         }
+                         // Note: Core assignment ('p') might be 0 if not generated for partitioned.
+                         // saveAsDot includes 'p' in the label. Any external tool needs to handle this.
+                         task_set.tasks[task_idx].saveAsDot(dot_filename);
+                         std::cout << "saving dot file" << std::endl;
+                    } catch (const std::exception& e) {
+                         std::cerr << "Error saving DAG task " << task_idx << " of taskset " << i << " to " << dot_filename << ": " << e.what() << std::endl;
+                         // Decide how to handle - continue?
+                    }
+                }
+            }
+        }
 
         int max_v_size = 0;
         for(int ii=0; ii<task_set.tasks.size(); ++ii)

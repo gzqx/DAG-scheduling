@@ -38,6 +38,7 @@ class GeneratorParams{
     float Utot              = 1;
     float beta              = 0.1;
 
+    bool saveGeneratedDOTs  = true; //whether saving the generated file to dot files
     int saveRate            = 25;
 
     float Umin              = 0;
